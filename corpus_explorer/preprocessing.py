@@ -3,7 +3,9 @@ so that it can be used as input to a topic model learner.
 """
 
 import re
-from typing import Iterable
+from typing import Iterable, List, Tuple
+
+from gensim import corpora
 
 
 PUNCT_RE = r'[!"#$%&\'()*+,./:;<=>?@\^_`{|}~]'
@@ -42,3 +44,39 @@ def normalize_text(text: str) -> str:
     text = text.strip()  # No whitespace at start and end of string
 
     return text
+
+
+def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
+    """Turn a collection of texts into a document-term matrix.
+
+    This function returns a list of tuples of ints, which is an acceptable
+    value to the 'corpus' parameter in gensim's model classes.
+
+    See here for example:
+    https://radimrehurek.com/gensim/models/ldamulticore.html#gensim.models.ldamulticore.LdaMulticore
+
+    Notes
+    -----
+    The current implementation forces using whitespace as a tokenization rule.
+    If we feel like we need more control, we could add a 'tokenizer' param that
+    accepts any tokenizing function that implements str -> List[str].
+
+    Parameters
+    ----------
+    corpus:
+        An iterable of strings. In this project this is likely a pd.Series of strings,
+        but it doesn't have to be.
+
+    Returns
+    -------
+    A sparse document-term matrix in integer list repesentation.
+
+    """
+    tokenized_corpus = [doc.split() for doc in corpus]
+    dictionary = corpora.Dictionary(tokenized_corpus)
+    docterm = [dictionary.doc2bow(doc) for doc in tokenized_corpus]
+
+    return {
+        'docterm': docterm,
+        'dictionary': dictionary,
+    }
