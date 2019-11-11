@@ -30,7 +30,7 @@ to ensure zlib, zlibbz2, and other dependencies are installed:
 c) Remove libssl-dev and install libssl1.0-dev, or else ou will get a "missing openssl" error
 (from [https://github.com/pyenv/pyenv/issues/950](https://github.com/pyenv/pyenv/issues/950)).
 
-In the terminal, run `sudo apt-get remove libssl-dev` and `sudo apt-get libssl1.0-dev`.
+In the terminal, run `sudo apt-get remove libssl-dev` and `sudo apt-get install libssl1.0-dev`.
 
 d) Proceed with step 6 of the Basic GitHub Checkout steps. That is, run `pyenv install 3.7.4`.
 
