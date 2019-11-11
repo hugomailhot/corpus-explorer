@@ -19,7 +19,7 @@ That is, add `export PATH=~/.poetry/bin:$PATH` to your .bashrc file.
 #### 2. Install pyenv
 
 a) Follow steps 1-5 in Basic GitHub Checkout steps from
-[https://github.com/pyenv/pyenv](https://github.com/pyenv/pyenv)
+[https://github.com/pyenv/pyenv](https://github.com/pyenv/pyenv#basic-github-checkout)
 
 b) Before step 6 (running `pyenv install 3.7.4`), run the following command
 (from [https://github.com/pyenv/pyenv/wiki](https://github.com/pyenv/pyenv/wiki))
