@@ -19,6 +19,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+.python-version
 
 # Unit test / coverage reports
 htmlcov/
