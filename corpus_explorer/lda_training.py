@@ -1,4 +1,6 @@
+import numpy as np
 import pandas as pd
+from gensim.matutils import corpus2csc
 from gensim.models import LdaModel
 
 from corpus_explorer.preprocessing import normalize_text
@@ -24,15 +26,18 @@ def get_lda_output(corpus: pd.DataFrame):
 
     corpus_text = corpus_text.map(lambda x: normalize_text(x))
     docterm, dictionary = get_docterm_matrix(corpus_text)
+    doclength = np.array([sum(x[1] for x in doc) for doc in docterm])
 
     lda = LdaModel(docterm, num_topics=3)
     doctopics = [lda.get_document_topics(doc) for doc in docterm]
     termtopics = lda.get_topics()
 
     return {
-        'doctopics': doctopics,
+        'doctopics': corpus2csc(doctopics),
+        'docterm': corpus2csc(docterm),
         'termtopics': termtopics,
         'dictionary': dictionary,
         'corpus_meta': corpus_meta,
+        'doclength': doclength,
     }
 
