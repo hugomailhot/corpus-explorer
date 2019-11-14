@@ -76,7 +76,4 @@ def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
     dictionary = corpora.Dictionary(tokenized_corpus)
     docterm = [dictionary.doc2bow(doc) for doc in tokenized_corpus]
 
-    return {
-        'docterm': docterm,
-        'dictionary': dictionary,
-    }
+    return docterm, dictionary
