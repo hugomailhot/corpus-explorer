@@ -77,3 +77,25 @@ def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
     docterm = [dictionary.doc2bow(doc) for doc in tokenized_corpus]
 
     return docterm, dictionary
+
+
+def get_topic_proportions(doctopics, doclengths):
+    """Compute the distribution of topics over a set of documents.
+
+    Parameters
+    ----------
+    doctopics: scipy.sparse.csc_matrix
+        Sparse matrix, |documents| x |topics|. Each row contains the topic
+        distribution for one document.
+    doclengths: np.array
+        Vector, |documents|. Each value if the length of a single document.
+
+    Returns
+    -------
+    Vector, |topics|. Each value is the aggregate proportion of a topic over
+    the entire set of documents.
+
+    """
+    len_weighted_doctopics = doctopics * doclengths[:, None]
+
+    return np.sum(len_weighted_doctopics, axis=0) / np.sum(len_weighted_doctopics)
