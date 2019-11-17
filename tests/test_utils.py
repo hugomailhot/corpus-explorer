@@ -1,4 +1,6 @@
-from corpus_explorer.preprocessing import normalize_text
+import numpy as np
+
+from corpus_explorer.utils import normalize_text, get_topic_proportions
 
 
 def test_normalize_text_handles_excess_whitespace():
