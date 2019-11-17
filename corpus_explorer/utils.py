@@ -5,6 +5,7 @@ so that it can be used as input to a topic model learner.
 import re
 from typing import Iterable, List, Tuple
 
+import numpy as np
 from gensim import corpora
 
 
