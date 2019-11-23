@@ -80,6 +80,34 @@ def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
     return docterm, dictionary
 
 
+def get_topic_coordinates(topicterms):
+    """Compute a 2-dimensional embeddings of topics that reflects their
+    distance from one another.
+
+    Distance (or inversely, similarity) between two topics is defined here as the
+    Jensen-Shannon divergence between the probability distributions over terms
+    in the two topics.
+
+    Parameters
+    ----------
+    topicterms: numpy.ndarray
+        Matrix, |topics| x |terms|. Each row contains the term distribution
+        for one topic.
+
+    Returns
+    -------
+    numpy.array, |topics| x 2
+    The ith row contains the x and y coordinates of the ith topic.
+
+    """
+    # Compute distance matrix using Jensen-Shannon divergence
+
+    # Perform dimensionality reduction to obtain 2-dimension embeddings of
+    # the topics.
+
+    # Return coordinates
+
+
 def get_topic_proportions(doctopics, doclengths):
     """Compute the distribution of topics over a set of documents.
 
