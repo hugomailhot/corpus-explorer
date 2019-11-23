@@ -1,5 +1,6 @@
 import numpy as np
 
+import pytest
 from corpus_explorer.utils import normalize_text
 from corpus_explorer.utils import get_topic_proportions
 from corpus_explorer.utils import get_topic_coordinates
@@ -59,3 +60,9 @@ def test_get_topic_coordinates_returns_expected_shape():
     mat_shape = xy_coords.shape
     expected = (topicterms.shape[0], 2)
     assert mat_shape == expected
+
+
+def test_get_topic_coordinates_raises_error_on_invalid_method_value():
+    topicterms = np.array([[1, 0], [0, 1]])
+    with pytest.raises(ValueError):
+        xy = get_topic_coordinates(topicterms, method='whoopsies')

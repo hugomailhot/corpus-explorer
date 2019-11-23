@@ -9,6 +9,7 @@ import numpy as np
 from gensim import corpora
 from scipy.spatial.distance import jensenshannon
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 
 
 PUNCT_RE = r'[!"#$%&\'()*+,./:;<=>?@\^_`{|}~]'
@@ -82,7 +83,7 @@ def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
     return docterm, dictionary
 
 
-def get_topic_coordinates(topicterms):
+def get_topic_coordinates(topicterms, method='pca'):
     """Compute a 2-dimensional embeddings of topics that reflects their
     distance from one another.
 
@@ -94,6 +95,9 @@ def get_topic_coordinates(topicterms):
     topicterms: numpy.ndarray
         Matrix, |topics| x |terms|. Each row contains the term distribution
         for one topic.
+    method: str
+        Method used to obtain the 2-dimensional embeddings. Acceptable value
+        are "pca" and "tsne".
 
     Returns
     -------
@@ -101,6 +105,9 @@ def get_topic_coordinates(topicterms):
     The ith row contains the x and y coordinates of the ith topic.
 
     """
+    if method not in {'pca', 'tsne'}:
+        raise ValueError('method argument must be either "pca" or "tsne"')
+
     n_topics = topicterms.shape[0]
     distance = np.zeros(shape=(n_topics, n_topics))
 
@@ -114,7 +121,11 @@ def get_topic_coordinates(topicterms):
     distance = distance + distance.T
 
     # Reduce dimensionality to obtain 2D topic embeddings.
-    dimensionality_reducer = PCA(n_components=2)
+    if method == 'pca':
+        dimensionality_reducer = PCA(n_components=2)
+    else:
+        dimensionality_reducer = TSNE(n_components=2)
+
     distance = dimensionality_reducer.fit_transform(distance)
 
     return distance
