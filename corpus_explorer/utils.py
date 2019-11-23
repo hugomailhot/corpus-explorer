@@ -7,6 +7,8 @@ from typing import Iterable, List, Tuple
 
 import numpy as np
 from gensim import corpora
+from scipy.spatial.distance import jensenshannon
+from sklearn.decomposition import PCA
 
 
 PUNCT_RE = r'[!"#$%&\'()*+,./:;<=>?@\^_`{|}~]'
@@ -84,9 +86,8 @@ def get_topic_coordinates(topicterms):
     """Compute a 2-dimensional embeddings of topics that reflects their
     distance from one another.
 
-    Distance (or inversely, similarity) between two topics is defined here as the
-    Jensen-Shannon divergence between the probability distributions over terms
-    in the two topics.
+    Distance between two topics is defined here as the Jensen-Shannon divergence
+    between the probability distributions over terms in the two topics.
 
     Parameters
     ----------
@@ -100,12 +101,23 @@ def get_topic_coordinates(topicterms):
     The ith row contains the x and y coordinates of the ith topic.
 
     """
-    # Compute distance matrix using Jensen-Shannon divergence
+    n_topics = topicterms.shape[0]
+    distance = np.zeros(shape=(n_topics, n_topics))
 
-    # Perform dimensionality reduction to obtain 2-dimension embeddings of
-    # the topics.
+    # Start with upper triangular distance matrix.
+    # The diagonal is already zeroes and is left untouched.
+    for i in range(n_topics):
+        for j in range(i + 1, n_topics):
+            distance[i][j] = jensenshannon(topicterms[i], topicterms[j])
 
-    # Return coordinates
+    # Copy it on the lower half, flipping along the diagonal.
+    distance = distance + distance.T
+
+    # Reduce dimensionality to obtain 2D topic embeddings.
+    dimensionality_reducer = PCA(n_components=2)
+    distance = dimensionality_reducer.fit_transform(distance)
+
+    return distance
 
 
 def get_topic_proportions(doctopics, doclengths):
