@@ -1,6 +1,8 @@
 import numpy as np
 
-from corpus_explorer.utils import normalize_text, get_topic_proportions
+from corpus_explorer.utils import normalize_text
+from corpus_explorer.utils import get_topic_proportions
+from corpus_explorer.utils import get_topic_coordinates
 
 
 def test_normalize_text_handles_excess_whitespace():
@@ -42,3 +44,18 @@ def test_get_topic_proportions_return_correction_proportions():
     # Using allclose instead of array_equal here, since floating point
     # imprecision causes inequality with a difference of 5e-17
     assert np.allclose(actual, expected)
+
+
+def test_get_topic_coordinates_returns_expected_shape():
+    topicterms = np.array([
+        [0.1, 0.2, 0. , 0. , 0.7],
+        [0. , 0. , 1. , 0. , 0. ],
+        [0.1, 0.1, 0.1, 0. , 0.7],
+        [0.1, 0. , 0.9, 0. , 0. ],
+        [0.2, 0.2, 0.2, 0.2, 0.2],
+    ])
+
+    xy_coords = get_topic_coordinates(topicterms)
+    mat_shape = xy_coords.shape
+    expected = (topicterms.shape[0], 2)
+    assert mat_shape == expected
