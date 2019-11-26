@@ -109,16 +109,16 @@ def get_topic_coordinates(topicterms, method='pca'):
         raise ValueError('method argument must be either "pca" or "tsne"')
 
     n_topics = topicterms.shape[0]
-    distance = np.zeros(shape=(n_topics, n_topics))
+    distance_mat = np.zeros(shape=(n_topics, n_topics))
 
     # Start with upper triangular distance matrix.
     # The diagonal is already zeroes and is left untouched.
     for i in range(n_topics):
         for j in range(i + 1, n_topics):
-            distance[i][j] = jensenshannon(topicterms[i], topicterms[j])
+            distance_mat[i][j] = jensenshannon(topicterms[i], topicterms[j])
 
     # Copy it on the lower half, flipping along the diagonal.
-    distance = distance + distance.T
+    distance_mat = distance_mat + distance_mat.T
 
     # Reduce dimensionality to obtain 2D topic embeddings.
     if method == 'pca':
@@ -126,9 +126,9 @@ def get_topic_coordinates(topicterms, method='pca'):
     else:
         dimensionality_reducer = TSNE(n_components=2)
 
-    distance = dimensionality_reducer.fit_transform(distance)
+    topic_coordinates = dimensionality_reducer.fit_transform(distance_mat)
 
-    return distance
+    return topic_coordinates
 
 
 def get_topic_proportions(doctopics, doclengths):
