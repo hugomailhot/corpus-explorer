@@ -1,6 +1,7 @@
 import numpy as np
-
 import pytest
+import scipy
+
 from corpus_explorer.utils import normalize_text
 from corpus_explorer.utils import get_topic_proportions
 from corpus_explorer.utils import get_topic_coordinates
@@ -33,14 +34,17 @@ def test_normalize_text_removes_punctuation():
 
 
 def test_get_topic_proportions_return_correction_proportions():
-    doctopics = np.array([
-        [0.2, 0.4],
-        [0.3, 0.2],
-        [0.5, 0.4],
-    ])
+    doctopics = scipy.sparse.csc_matrix(
+        np.array([
+            [0.2, 0.4],
+            [0.3, 0.2],
+            [0.5, 0.4],
+        ])
+    )
     doclengths = np.array([2, 3])
 
     expected = np.array([0.32, 0.24, 0.44])
+
     actual = get_topic_proportions(doctopics, doclengths)
 
     # Using allclose instead of array_equal here, since floating point
