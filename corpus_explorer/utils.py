@@ -148,6 +148,7 @@ def get_topic_proportions(doctopics, doclengths):
     the entire set of documents.
 
     """
-    len_weighted_doctopics = doctopics * doclengths[:, None]
+    len_weighted_doctopics = doctopics * doclengths[None, :]
 
-    return np.sum(len_weighted_doctopics, axis=0) / np.sum(len_weighted_doctopics)
+    return np.sum(len_weighted_doctopics, axis=1) / np.sum(len_weighted_doctopics)
+

@@ -34,8 +34,9 @@ def test_normalize_text_removes_punctuation():
 
 def test_get_topic_proportions_return_correction_proportions():
     doctopics = np.array([
-        [0.2, 0.3, 0.5],
-        [0.4, 0.2, 0.4],
+        [0.2, 0.4],
+        [0.3, 0.2],
+        [0.5, 0.4],
     ])
     doclengths = np.array([2, 3])
 
