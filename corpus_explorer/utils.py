@@ -151,8 +151,9 @@ def get_topic_proportions(doctopics, doclengths):
 
     Returns
     -------
-    Vector, |topics|. Each value is the aggregate proportion of a topic over
-    the entire set of documents.
+    numpy.ndarray
+        Vector, |topics|. Each value is the aggregate proportion of a topic over
+        the entire set of documents.
 
     """
     len_weighted_doctopics = doctopics * doclengths[None, :]
