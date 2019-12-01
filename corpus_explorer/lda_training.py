@@ -1,43 +1,63 @@
+"""This script put everything together to go from a well-formed corpus
+to an HTML visualization of the topics in the corpus.
+
+"""
+
+
+import argparse
+
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 from gensim.matutils import corpus2csc
 from gensim.models import LdaModel
+from sklearn.preprocessing import MinMaxScaler
 
-from corpus_explorer.preprocessing import normalize_text
-from corpus_explorer.preprocessing import get_docterm_matrix
+from corpus_explorer.utils import normalize_text
+from corpus_explorer.utils import get_docterm_matrix
+from corpus_explorer.utils import get_topic_coordinates
+from corpus_explorer.utils import get_topic_proportions
 
 
-def get_lda_output(corpus: pd.DataFrame):
-    """Given a text corpus, return all that's needed for the visualization
-    component.
+if __name__ == '__main__':
 
-    Parameters
-    ----------
-    corpus:
-        A pd.DataFrame with columns 'ID', 'text', 'timestamp', 'tags'.
+    parser = argparse.ArgumentParser(
+        description='Learn topic model and generate visualization data.',
+    )
+    parser.add_argument(
+        'input_filepath',
+        help='Filepath of the input corpus',
+        type=str,
+    )
+    args = parser.parse_args()
+    data = pd.read_parquet(args.input_filepath)
 
-    Returns
-    -------
-    complete this
+    data.text = data.text.map(normalize_text)
 
-    """
-    corpus_text = corpus['text']
-    corpus_meta = corpus.drop(columns='text')
-
-    corpus_text = corpus_text.map(lambda x: normalize_text(x))
-    docterm, dictionary = get_docterm_matrix(corpus_text)
+    docterm, dictionary = get_docterm_matrix(data.text)
     doclength = np.array([sum(x[1] for x in doc) for doc in docterm])
 
     lda = LdaModel(docterm, num_topics=3)
-    doctopics = [lda.get_document_topics(doc) for doc in docterm]
+    doctopics = corpus2csc([lda.get_document_topics(doc) for doc in docterm])
     termtopics = lda.get_topics()
 
-    return {
-        'doctopics': corpus2csc(doctopics),
-        'docterm': corpus2csc(docterm),
-        'termtopics': termtopics,
-        'dictionary': dictionary,
-        'corpus_meta': corpus_meta,
-        'doclength': doclength,
-    }
+    topic_coordinates = get_topic_coordinates(termtopics)
+    topics_x_coords = topic_coordinates[:, 0]
+    topics_y_coords = topic_coordinates[:, 1]
+
+    topic_proportions = get_topic_proportions(doctopics, doclength)
+    # Scale proportion values to adequate Plotly marker size values
+    scaler = MinMaxScaler(feature_range=(20, 100))
+    topic_sizes = scaler.fit_transform(topic_proportions.reshape(-1, 1))
+
+    fig = go.Figure(
+        go.Scatter(
+            x=topics_x_coords,
+            y=topics_y_coords,
+            mode='markers',
+            marker_size=topic_sizes,
+        ),
+    )
+
+    fig.write_html('test.html')
 
