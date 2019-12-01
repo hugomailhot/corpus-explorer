@@ -156,7 +156,10 @@ def get_topic_proportions(doctopics, doclengths):
         the entire set of documents.
 
     """
-    len_weighted_doctopics = np.array(np.multiply(doctopics.todense(), doclengths))
+    len_weighted_doctopics = np.multiply(
+        np.array(doctopics.todense()),  # todense give np.matrix, need array
+        doclengths,
+    )
 
     return np.sum(len_weighted_doctopics, axis=1) / np.sum(len_weighted_doctopics)
 
