@@ -8,15 +8,14 @@ import argparse
 
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 from gensim.matutils import corpus2csc
 from gensim.models import LdaModel
-from sklearn.preprocessing import MinMaxScaler
 
 from corpus_explorer.utils import normalize_text
 from corpus_explorer.utils import get_docterm_matrix
 from corpus_explorer.utils import get_topic_coordinates
 from corpus_explorer.utils import get_topic_proportions
+from corpus_explorer.utils import generate_topic_scatter_plot
 
 
 if __name__ == '__main__':
@@ -42,22 +41,8 @@ if __name__ == '__main__':
     termtopics = lda.get_topics()
 
     topic_coordinates = get_topic_coordinates(termtopics)
-    topics_x_coords = topic_coordinates[:, 0]
-    topics_y_coords = topic_coordinates[:, 1]
-
     topic_proportions = get_topic_proportions(doctopics, doclength)
-    # Scale proportion values to adequate Plotly marker size values
-    scaler = MinMaxScaler(feature_range=(20, 100))
-    topic_sizes = scaler.fit_transform(topic_proportions.reshape(-1, 1))
 
-    fig = go.Figure(
-        go.Scatter(
-            x=topics_x_coords,
-            y=topics_y_coords,
-            mode='markers',
-            marker_size=topic_sizes,
-        ),
-    )
-
+    fig = generate_topic_scatter_plot(topic_coordinates, topic_proportions)
     fig.write_html('test.html')
 

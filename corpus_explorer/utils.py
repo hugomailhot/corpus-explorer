@@ -6,12 +6,19 @@ import re
 from typing import Iterable, List, Tuple
 
 import numpy as np
+import plotly.graph_objects as go
 from gensim import corpora
 from scipy.spatial.distance import jensenshannon
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+from sklearn.preprocessing import MinMaxScaler
 
 
+# Reasonable range for object sizes in Plotly
+MIN_MARKER_SIZE = 20
+MAX_MARKER_SIZE = 100
+
+# Regex for punctuation in English text
 PUNCT_RE = r'[!"#$%&\'()*+,./:;<=>?@\^_`{|}~]'
 
 
@@ -152,3 +159,36 @@ def get_topic_proportions(doctopics, doclengths):
 
     return np.sum(len_weighted_doctopics, axis=1) / np.sum(len_weighted_doctopics)
 
+
+def generate_topic_scatter_plot(topic_coordinates, topic_proportions):
+    """With 2-D topic embeddings and their proportion across a corpus, generate
+    a scatter plot that represents their relative distance and sizes.
+
+    Parameters
+    ----------
+    topic_coordinates: numpy.array, |topics| x 2
+        2-dimensional coordinates representing topic positions.
+    topic_propoertions: numpy.ndarray, |topics|
+        Vector of topic proportion in a corpus.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        Graph object, ready to be displayed or written to disk.
+
+    """
+    x_coords = topic_coordinates[:, 0]
+    y_coords = topic_coordinates[:, 1]
+
+    # Scale proportion values to adequate Plotly marker size values
+    scaler = MinMaxScaler(feature_range=(MIN_MARKER_SIZE, MAX_MARKER_SIZE))
+    topic_sizes = scaler.fit_transform(topic_proportions.reshape(-1, 1))
+
+    return go.Figure(
+        go.Scatter(
+            x=x_coords,
+            y=y_coords,
+            mode='markers',
+            marker_size=topic_sizes,
+        ),
+    )
