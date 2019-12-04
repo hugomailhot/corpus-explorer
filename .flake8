@@ -1,0 +1,15 @@
+[flake8]
+exclude =
+    # No need to traverse our git directory
+    .git,
+    # There's no value in checking cache directories
+    __pycache__,
+    # Ignore distribution files
+    .eggs
+
+statistics = True
+
+# This just adds some color formatting to the standard output.
+format = ${cyan}%(path)s${reset}:${yellow_bold}%(row)d${reset}:${green_bold}%(col)d${reset}: ${red_bold}%(code)s${reset} %(text)s
+
+max-line-length = 99
