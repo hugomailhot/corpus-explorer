@@ -3,7 +3,9 @@ so that it can be used as input to a topic model learner.
 """
 
 import re
-from typing import Iterable, List, Tuple
+from typing import Iterable
+from typing import List
+from typing import Tuple
 
 import numpy as np
 import plotly.graph_objects as go
