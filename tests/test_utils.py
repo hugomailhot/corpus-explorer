@@ -39,7 +39,7 @@ def test_get_topic_proportions_return_correction_proportions():
             [0.2, 0.4],
             [0.3, 0.2],
             [0.5, 0.4],
-        ])
+        ]),
     )
     doclengths = np.array([2, 3])
 
@@ -54,10 +54,10 @@ def test_get_topic_proportions_return_correction_proportions():
 
 def test_get_topic_coordinates_returns_expected_shape():
     topicterms = np.array([
-        [0.1, 0.2, 0. , 0. , 0.7],
-        [0. , 0. , 1. , 0. , 0. ],
-        [0.1, 0.1, 0.1, 0. , 0.7],
-        [0.1, 0. , 0.9, 0. , 0. ],
+        [0.1, 0.2, 0.0, 0.0, 0.7],
+        [0.0, 0.0, 1.0, 0.0, 0.0],
+        [0.1, 0.1, 0.1, 0.0, 0.7],
+        [0.1, 0.0, 0.9, 0.0, 0.0],
         [0.2, 0.2, 0.2, 0.2, 0.2],
     ])
 
@@ -70,4 +70,4 @@ def test_get_topic_coordinates_returns_expected_shape():
 def test_get_topic_coordinates_raises_error_on_invalid_method_value():
     topicterms = np.array([[1, 0], [0, 1]])
     with pytest.raises(ValueError):
-        xy = get_topic_coordinates(topicterms, method='whoopsies')
+        get_topic_coordinates(topicterms, method='whoopsies')
