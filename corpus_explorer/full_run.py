@@ -11,11 +11,11 @@ import pandas as pd
 from gensim.matutils import corpus2csc
 from gensim.models import LdaModel
 
-from corpus_explorer.utils import normalize_text
+from corpus_explorer.utils import generate_topic_scatter_plot
 from corpus_explorer.utils import get_docterm_matrix
 from corpus_explorer.utils import get_topic_coordinates
 from corpus_explorer.utils import get_topic_proportions
-from corpus_explorer.utils import generate_topic_scatter_plot
+from corpus_explorer.utils import normalize_text
 
 
 if __name__ == '__main__':
@@ -45,4 +45,3 @@ if __name__ == '__main__':
 
     fig = generate_topic_scatter_plot(topic_coordinates, topic_proportions)
     fig.write_html('test.html')
-

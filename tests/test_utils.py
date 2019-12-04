@@ -2,9 +2,9 @@ import numpy as np
 import pytest
 import scipy
 
-from corpus_explorer.utils import normalize_text
-from corpus_explorer.utils import get_topic_proportions
 from corpus_explorer.utils import get_topic_coordinates
+from corpus_explorer.utils import get_topic_proportions
+from corpus_explorer.utils import normalize_text
 
 
 def test_normalize_text_handles_excess_whitespace():
