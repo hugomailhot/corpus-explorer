@@ -7,8 +7,13 @@ from typing import Iterable
 from typing import List
 from typing import Tuple
 
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
 import numpy as np
 import plotly.graph_objects as go
+from dash.dependencies import Input
+from dash.dependencies import Output
 from gensim import corpora
 from scipy.spatial.distance import jensenshannon
 from sklearn.decomposition import PCA
@@ -198,3 +203,69 @@ def generate_topic_scatter_plot(topic_coordinates, topic_proportions):
             marker_size=topic_sizes,
         ),
     )
+
+
+def generate_visualization(topic_coordinates, topic_proportions):
+
+    x_coords = topic_coordinates[:, 0]
+    y_coords = topic_coordinates[:, 1]
+
+    # Scale proportion values to adequate Plotly marker size values
+    scaler = MinMaxScaler(feature_range=(MIN_MARKER_SIZE, MAX_MARKER_SIZE))
+    topic_sizes = scaler.fit_transform(topic_proportions.reshape(-1, 1))
+
+    app = dash.Dash()
+
+    slider = dcc.Slider(
+        id='slider_input',
+        min=1,
+        max=2,
+        step=0.1,
+        value=1,
+    )
+
+    graph = dcc.Graph(id='example')
+    graph_layout = go.Layout(
+        title='Plot',
+        yaxis=dict(range=[-0.5, 0.5]),
+        xaxis=dict(range=[-0.5, 0.5]),
+    )
+
+    app.layout = html.Div(
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H5("Level"),
+                        slider,
+                    ],
+                    style={'width': 200},
+                ),
+                html.Div(style={'height': 10, 'width': 200}),
+                graph,
+            ],
+            style={'width': 500, 'height': 200, 'display': 'inline-block'},
+        ),
+    )
+
+    # callback - 1 (from slider)
+    @app.callback(Output('example', 'figure'),
+                  [Input('slider_input', 'value')])
+    def update_plot(slider_input):
+        q = float(slider_input)
+
+        figure = {
+            'data': [
+                go.Scatter(
+                    x=x_coords,
+                    y=y_coords,
+                    mode='markers',
+                    marker_size=topic_sizes * q,
+                ),
+            ],
+            'layout': graph_layout,
+        }
+
+        return figure
+
+    return app

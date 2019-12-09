@@ -11,7 +11,7 @@ import pandas as pd
 from gensim.matutils import corpus2csc
 from gensim.models import LdaModel
 
-from corpus_explorer.utils import generate_topic_scatter_plot
+from corpus_explorer.utils import generate_visualization
 from corpus_explorer.utils import get_docterm_matrix
 from corpus_explorer.utils import get_topic_coordinates
 from corpus_explorer.utils import get_topic_proportions
@@ -43,5 +43,5 @@ if __name__ == '__main__':
     topic_coordinates = get_topic_coordinates(termtopics)
     topic_proportions = get_topic_proportions(doctopics, doclength)
 
-    fig = generate_topic_scatter_plot(topic_coordinates, topic_proportions)
-    fig.write_html('test.html')
+    app = generate_visualization(topic_coordinates, topic_proportions)
+    app.run_server(debug=True)
