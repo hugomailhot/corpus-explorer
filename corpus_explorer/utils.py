@@ -209,7 +209,7 @@ def generate_topic_scatter_plot(topic_coordinates, topic_proportions):
 
 def get_topic_term_ranks(
     docterm: List[Tuple[int]],
-    termtopic: np.ndarray
+    termtopic: np.ndarray,
 ) -> Dict[float, Dict[int, List[int]]]:
     """Compute term relevance rankings for all topics.
 
