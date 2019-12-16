@@ -16,6 +16,7 @@ import plotly.graph_objects as go
 from dash.dependencies import Input
 from dash.dependencies import Output
 from gensim import corpora
+from gensim.matutils import corpus2csc
 from scipy.spatial.distance import jensenshannon
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -252,10 +253,26 @@ def get_topic_term_ranks(
         }
 
     """
-    # Convert docterm into scipy matrix and compute P(term)
-    dt = corpus2csc(docterm)
+    # Convert docterm into scipy matrix and compute P(term) for all terms
+    docterm_mat = corpus2csc(docterm)
+    p_term = np.asarray(docterm_mat.sum(axis=1) / docterm_mat.sum()).squeeze()
 
     term_ranks = {}
+
+    for lam in np.arange(0, 1.1, step=0.1):
+        lam = round(lam, 1)  # round to avoid floating point imprecision stuff
+        term_ranks[lam] = {}
+
+        for topic_id in range(termtopic.shape[0]):
+            p_term_topic = termtopic[topic_id]
+            lift = np.divide(p_term_topic, p_term)
+            term_topic_relevance = (
+                lam * np.log(p_term_topic) +
+                (1 - lam) * np.log(lift)
+            )
+            # Rank term ids in decreasing order of relevance
+            ranked_term_ids = np.argsort(term_topic_relevance)[::-1].tolist()
+            term_ranks[lam][topic_id] = ranked_term_ids
 
     return term_ranks
 
