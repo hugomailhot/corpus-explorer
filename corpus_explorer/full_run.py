@@ -15,6 +15,7 @@ from corpus_explorer.utils import generate_visualization
 from corpus_explorer.utils import get_docterm_matrix
 from corpus_explorer.utils import get_topic_coordinates
 from corpus_explorer.utils import get_topic_proportions
+from corpus_explorer.utils import get_topic_term_ranks
 from corpus_explorer.utils import normalize_text
 
 
@@ -42,6 +43,8 @@ if __name__ == '__main__':
 
     topic_coordinates = get_topic_coordinates(termtopics)
     topic_proportions = get_topic_proportions(doctopics, doclength)
+
+    term_ranks = get_topic_term_ranks(docterm, termtopics)
 
     app = generate_visualization(topic_coordinates, topic_proportions)
     app.run_server(debug=True)
