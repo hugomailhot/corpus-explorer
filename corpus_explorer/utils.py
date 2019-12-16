@@ -198,3 +198,53 @@ def generate_topic_scatter_plot(topic_coordinates, topic_proportions):
             marker_size=topic_sizes,
         ),
     )
+
+
+def get_topic_term_ranks(
+    docterm: List[Tuple[int]],
+    topicterm: np.ndarray
+) -> Dict[float, Dict[int, List[Tuple[str, float, float]]]]:
+    """Compute term relevance rankings for all topics.
+
+    Notes
+    -----
+    The term relevance computation is described in this paper:
+    https://nlp.stanford.edu/events/illvi2014/papers/sievert-illvi2014.pdf
+
+    Term relevance is defined as an interpolation between log(P(term|topic)) and
+    log(P(term|topic) / P(term)). The interpolation is parameterized with a lambda
+    term between 0 and 1. We compute:
+
+    relevance(word, topic | lambda) =
+        lambda * log(P(term|topic)) + (1 - lambda) * log(P(term|topic) / P(term))
+
+    This function computes the rankings for all lambdas in the range [0, 1], with
+    step size 0.1.
+
+    Parameters
+    ----------
+    docterm:
+        A sparse document-term matrix in integer list repesentation.
+
+    topicterm
+        |topics| x |terms| np.ndarray
+        Rows are term probabilities for a single topic.
+
+    Returns
+    -------
+    A dict with the following structure:
+        {
+            lambda_value_1: {
+                topic_1: (term1, term2, term3, ...),
+                topic_2: (termx, termy, termz, ...),
+                ...
+            },
+            lambda_value_2: ...,
+            ...
+        }
+
+    """
+    # Convert docterm into scipy matrix and compute P(term)
+    dt = docterm.as
+
+
