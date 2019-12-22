@@ -3,6 +3,7 @@ so that it can be used as input to a topic model learner.
 """
 
 import re
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Tuple
@@ -15,6 +16,7 @@ import plotly.graph_objects as go
 from dash.dependencies import Input
 from dash.dependencies import Output
 from gensim import corpora
+from gensim.matutils import corpus2csc
 from scipy.spatial.distance import jensenshannon
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -203,6 +205,76 @@ def generate_topic_scatter_plot(topic_coordinates, topic_proportions):
             marker_size=topic_sizes,
         ),
     )
+
+
+def get_topic_term_ranks(
+    docterm: List[Tuple[int]],
+    termtopic: np.ndarray,
+) -> Dict[float, Dict[int, List[int]]]:
+    """Compute term relevance rankings for all topics.
+
+    Notes
+    -----
+    The term relevance computation is described in this paper:
+    https://nlp.stanford.edu/events/illvi2014/papers/sievert-illvi2014.pdf
+
+    Term relevance is defined as an interpolation between log(P(term|topic)) and
+    log(P(term|topic) / P(term)). The interpolation is parameterized with a lambda
+    term between 0 and 1. We compute:
+
+    relevance(word, topic | lambda) =
+        lambda * log(P(term|topic)) + (1 - lambda) * log(lift(term, topic))
+
+    where lift(term, topic) = P(term|topic) / P(term).
+
+    This function computes the rankings for all lambdas in the range [0, 1], with
+    step size 0.1.
+
+    Parameters
+    ----------
+    docterm
+        A sparse document-term matrix in integer list repesentation.
+
+    termtopic
+        |topics| x |terms| np.ndarray
+        Rows are term probabilities for a single topic.
+
+    Returns
+    -------
+    A dict with the following structure:
+        {
+            lambda_value_1: {
+                topic_1: (term_id_1, term_id_2, term_id_3, ...),
+                topic_2: (term_id_x, term_id_y, term_id_z, ...),
+                ...
+            },
+            lambda_value_2: ...,
+            ...
+        }
+
+    """
+    # Convert docterm into scipy matrix and compute P(term) for all terms
+    docterm_mat = corpus2csc(docterm)
+    p_term = np.asarray(docterm_mat.sum(axis=1) / docterm_mat.sum()).squeeze()
+
+    term_ranks = {}
+
+    for lam in np.arange(0, 1.1, step=0.1):
+        lam = round(lam, 1)  # round to avoid floating point imprecision stuff
+        term_ranks[lam] = {}
+
+        for topic_id in range(termtopic.shape[0]):
+            p_term_topic = termtopic[topic_id]
+            lift = np.divide(p_term_topic, p_term)
+            term_topic_relevance = (
+                lam * np.log(p_term_topic) +
+                (1 - lam) * np.log(lift)
+            )
+            # Rank term ids in decreasing order of relevance
+            ranked_term_ids = np.argsort(term_topic_relevance)[::-1].tolist()
+            term_ranks[lam][topic_id] = ranked_term_ids
+
+    return term_ranks
 
 
 def generate_visualization(topic_coordinates, topic_proportions):

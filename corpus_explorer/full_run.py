@@ -15,6 +15,7 @@ from corpus_explorer.utils import generate_visualization
 from corpus_explorer.utils import get_docterm_matrix
 from corpus_explorer.utils import get_topic_coordinates
 from corpus_explorer.utils import get_topic_proportions
+from corpus_explorer.utils import get_topic_term_ranks
 from corpus_explorer.utils import normalize_text
 
 
@@ -29,19 +30,33 @@ if __name__ == '__main__':
         type=str,
     )
     args = parser.parse_args()
+
+    print('Reading dataset')
     data = pd.read_parquet(args.input_filepath)
 
+    print('Normalizing text')
     data.text = data.text.map(normalize_text)
 
+    print('Building docterm matrix')
     docterm, dictionary = get_docterm_matrix(data.text)
     doclength = np.array([sum(x[1] for x in doc) for doc in docterm])
 
-    lda = LdaModel(docterm, num_topics=3)
+    print('Training LDA model')
+    lda = LdaModel(docterm, num_topics=40)
+
+    print('Getting document topics')
     doctopics = corpus2csc([lda.get_document_topics(doc) for doc in docterm])
     termtopics = lda.get_topics()
 
+    print('Computing topic coordinates')
     topic_coordinates = get_topic_coordinates(termtopics)
     topic_proportions = get_topic_proportions(doctopics, doclength)
 
+    print('Computing term ranks per topic')
+    term_ranks = get_topic_term_ranks(docterm, termtopics)
+
+    # TODO: add term ranking display to the app
+
+    print('Launching app')
     app = generate_visualization(topic_coordinates, topic_proportions)
-    app.run_server(debug=True)
+    app.run_server(debug=False)
