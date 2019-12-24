@@ -19,7 +19,14 @@ def serve_term_relevance_bar_plot(term_ranks, topic_id, lam):
         orientation='h',
     )
 
-    figure = go.Figure(data=data)
+    layout = go.Layout(
+        transition={'duration': 500},
+        # plot_bgcolor="#282b38",
+        # paper_bgcolor="#282b38",
+        # font={"color": "#a5b1cd"},
+    )
+
+    figure = go.Figure(data=data, layout=layout)
 
     return figure
 
@@ -47,6 +54,9 @@ def serve_topic_scatter_plot(
         xaxis=dict(range=[min(x_coords) - x_pad, max(x_coords) + x_pad]),
         yaxis=dict(range=[min(y_coords) - y_pad, max(y_coords) + y_pad]),
         transition={'duration': 500},  # animate from previous plot to next
+        # plot_bgcolor="#282b38",
+        # paper_bgcolor="#282b38",
+        # font={"color": "#a5b1cd"},
     )
 
     figure = go.Figure(data=data, layout=layout)
