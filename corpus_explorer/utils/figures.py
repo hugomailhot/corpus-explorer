@@ -6,6 +6,24 @@ import plotly.graph_objs as go
 from sklearn.preprocessing import MinMaxScaler
 
 
+def serve_term_relevance_bar_plot(term_ranks, topic_id, lam):
+
+    # top_10_terms = [str(x) for x in term_ranks[lam][topic_id][:10]]
+
+    top_10_terms = ['hello', 'bonjour', 'buenos dias', 'konichiwa', 'tag',
+                    'salut', 'asd', 'qwe', 'cvb', 'rty']
+
+    data = go.Bar(
+        x=list(range(10, 0, -1)),
+        y=top_10_terms,
+        orientation='h',
+    )
+
+    figure = go.Figure(data=data)
+
+    return figure
+
+
 def serve_topic_scatter_plot(
     topic_coordinates, topic_proportions, topic_size_scaler,
 ):
