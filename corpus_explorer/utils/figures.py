@@ -6,12 +6,8 @@ import plotly.graph_objs as go
 from sklearn.preprocessing import MinMaxScaler
 
 
-def serve_term_relevance_bar_plot(term_ranks, topic_id, lam):
-
-    # top_10_terms = [str(x) for x in term_ranks[lam][topic_id][:10]]
-
-    top_10_terms = ['hello', 'bonjour', 'buenos dias', 'konichiwa', 'tag',
-                    'salut', 'asd', 'qwe', 'cvb', 'rty']
+def serve_term_relevance_bar_plot(term_ranks, dictionary, topic_id, lam):
+    top_10_terms = [dictionary[term_id] for term_id in term_ranks[lam][topic_id][:10]]
 
     data = go.Bar(
         x=list(range(10, 0, -1)),
@@ -20,7 +16,7 @@ def serve_term_relevance_bar_plot(term_ranks, topic_id, lam):
     )
 
     layout = go.Layout(
-        transition={'duration': 500},
+        title='Most relevant topic terms',
         # plot_bgcolor="#282b38",
         # paper_bgcolor="#282b38",
         # font={"color": "#a5b1cd"},
@@ -50,7 +46,7 @@ def serve_topic_scatter_plot(
     x_pad = 0.05
     y_pad = 0.05
     layout = go.Layout(
-        title='Plot',
+        title='Inter-topic distance',
         xaxis=dict(range=[min(x_coords) - x_pad, max(x_coords) + x_pad]),
         yaxis=dict(range=[min(y_coords) - y_pad, max(y_coords) + y_pad]),
         transition={'duration': 500},  # animate from previous plot to next

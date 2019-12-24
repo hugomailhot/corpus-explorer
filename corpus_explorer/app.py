@@ -62,15 +62,29 @@ app.layout = html.Div(
         html.Div(
             id='div-top-controls',
             children=[
-                drc.NamedSlider(
-                    name='Topic Size Scaling',
-                    id='slider-topic-size-scaling',
-                    min=1,
-                    max=2,
-                    step=0.1,
-                    value=1,
+                html.Div(
+                    id='slider-topic-size-scaling-container',
+                    children=drc.NamedSlider(
+                        name='Topic Size Scaling',
+                        id='slider-topic-size-scaling',
+                        min=1,
+                        max=2,
+                        step=0.1,
+                        value=1,
+                    ),
                 ),
-            ]
+                html.Div(
+                    id='slider-term-relevance-lambda-container',
+                    children=drc.NamedSlider(
+                        name='Lambda',
+                        id='slider-term-relevance-lambda',
+                        min=0,
+                        max=1,
+                        step=0.1,
+                        value=0.6,
+                    ),
+                ),
+            ],
         ),
 
         html.Div(
@@ -99,13 +113,18 @@ def update_topic_scatter_plot_marker_sizes(topic_size_scaling):
 
 @app.callback(
     Output('graph-term-relevance-bar-plot-container', 'children'),
-    [Input('slider-topic-size-scaling', 'value')])
-def update_term_relevance_bar_plot(lam):
-    term_relevance_bar_plot = figs.serve_term_relevance_bar_plot(term_ranks, 0, 1)
+    [Input('slider-term-relevance-lambda', 'value')])
+def update_term_relevance_bar_plot(lambda_value):
+    term_relevance_bar_plot = figs.serve_term_relevance_bar_plot(
+        term_ranks,
+        dictionary,
+        0,
+        lambda_value,
+    )
 
     return dcc.Graph(id='graph-term-relevance-bar-plot', figure=term_relevance_bar_plot)
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
 

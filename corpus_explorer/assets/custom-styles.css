@@ -1,3 +1,23 @@
+/* Top controls
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+#div-top-controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+}
+
+#slider-topic-size-scaling-container {
+    flex: 1 66%;
+}
+
+#slider-term-relevance-lambda-container {
+    flex: 1 33%;
+}
+
+
+/* Graph container
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
 #div-graphs {
     display: flex;
     flex-direction: row;
