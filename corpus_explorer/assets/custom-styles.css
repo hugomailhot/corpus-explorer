@@ -1,0 +1,15 @@
+#div-graphs {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+}
+
+#graph-topic-scatter-plot-container {
+    flex: 2 66%;
+}
+
+#graph-term-relevance-bar-plot-container {
+    flex: 1 33%;
+}
+
