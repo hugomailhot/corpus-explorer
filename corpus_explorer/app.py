@@ -94,10 +94,7 @@ def update_topic_scatter_plot_marker_sizes(topic_size_scaling):
         topic_coordinates, topic_proportions, topic_size_scaling,
     )
 
-    return dcc.Loading(
-        className='graph-topic-scatter-plot-wrapper',
-        children=dcc.Graph(id='graph-topic-scatter-plot', figure=topic_scatter_plot),
-    )
+    return dcc.Graph(id='graph-topic-scatter-plot', figure=topic_scatter_plot)
 
 
 @app.callback(
@@ -106,10 +103,8 @@ def update_topic_scatter_plot_marker_sizes(topic_size_scaling):
 def update_term_relevance_bar_plot(lam):
     term_relevance_bar_plot = figs.serve_term_relevance_bar_plot(term_ranks, 0, 1)
 
-    return dcc.Loading(
-        className='graph-term-relevance-bar-plot-wrapper',
-        children=dcc.Graph(id='graph-term-relevance-bar-plot', figure=term_relevance_bar_plot),
-    )
+    return dcc.Graph(id='graph-term-relevance-bar-plot', figure=term_relevance_bar_plot)
+
 
 if __name__ == '__main__':
     app.run_server(debug=False)
