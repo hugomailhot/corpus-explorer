@@ -25,6 +25,11 @@ parser.add_argument(
     help='Filepath of the input corpus',
     type=str,
 )
+parser.add_argument(
+    'n_topics',
+    help='Number of topics in the LDA model',
+    type=int,
+)
 args = parser.parse_args()
 
 print('Reading dataset')
@@ -38,7 +43,7 @@ docterm, dictionary = nlp.get_docterm_matrix(data.text)
 doclength = np.array([sum(x[1] for x in doc) for doc in docterm])
 
 print('Training LDA model')
-lda = LdaModel(docterm, num_topics=3)
+lda = LdaModel(docterm, num_topics=args.n_topics)
 
 print('Getting document topics')
 doctopics = corpus2csc([lda.get_document_topics(doc) for doc in docterm])
