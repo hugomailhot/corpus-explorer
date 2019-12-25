@@ -13,3 +13,13 @@ def NamedSlider(name, **kwargs):
             html.Div(style={"margin-left": "6px"}, children=dcc.Slider(**kwargs)),
         ],
     )
+
+
+def NamedInput(name, **kwargs):
+    return html.Div(
+        style={"padding": "20px 10px 25px 4px"},
+        children=[
+            html.P(f"{name}:"),
+            html.Div(style={"margin-left": "6px"}, children=dcc.Input(**kwargs)),
+        ],
+    )

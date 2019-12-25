@@ -89,6 +89,18 @@ app.layout = html.Div(
                         value=0.6,
                     ),
                 ),
+                html.Div(
+                    id='input-topic-id-container',
+                    children=drc.NamedInput(
+                        name='Topic ID',
+                        id='input-topic-id',
+                        type='number',
+                        value=0,
+                        min=0,
+                        max=args.n_topics-1,
+                        step=1,
+                    ),
+                ),
             ],
         ),
 
@@ -118,12 +130,13 @@ def update_topic_scatter_plot_marker_sizes(topic_size_scaling):
 
 @app.callback(
     Output('graph-term-relevance-bar-plot-container', 'children'),
-    [Input('slider-term-relevance-lambda', 'value')])
-def update_term_relevance_bar_plot(lambda_value):
+    [Input('slider-term-relevance-lambda', 'value'),
+     Input('input-topic-id', 'value')])
+def update_term_relevance_bar_plot(lambda_value, topic_id):
     term_relevance_bar_plot = figs.serve_term_relevance_bar_plot(
         term_ranks,
         dictionary,
-        0,
+        topic_id,
         lambda_value,
     )
 
@@ -132,4 +145,3 @@ def update_term_relevance_bar_plot(lambda_value):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-

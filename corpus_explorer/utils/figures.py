@@ -7,16 +7,17 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 def serve_term_relevance_bar_plot(term_ranks, dictionary, topic_id, lam):
-    top_10_terms = [dictionary[term_id] for term_id in term_ranks[lam][topic_id][:10]]
+    N = 30
+    top_N_terms = [dictionary[term_id] for term_id in term_ranks[lam][topic_id][:N]]
 
     data = go.Bar(
-        x=list(range(10, 0, -1)),
-        y=top_10_terms,
+        x=list(range(1, N + 1)),
+        y=top_N_terms,
         orientation='h',
     )
 
     layout = go.Layout(
-        title='Most relevant topic terms',
+        title=f'{N} most relevant topic terms',
         # plot_bgcolor="#282b38",
         # paper_bgcolor="#282b38",
         # font={"color": "#a5b1cd"},
