@@ -120,7 +120,6 @@ app.layout = html.Div(
     Output('graph-topic-scatter-plot-container', 'children'),
     [Input('slider-topic-size-scaling', 'value')])
 def update_topic_scatter_plot_marker_sizes(topic_size_scaling):
-    topic_size_scaling = float(topic_size_scaling)
     topic_scatter_plot = figs.serve_topic_scatter_plot(
         topic_coordinates, topic_proportions, topic_size_scaling,
     )
