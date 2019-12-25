@@ -125,7 +125,11 @@ def update_topic_scatter_plot_marker_sizes(topic_size_scaling):
         topic_coordinates, topic_proportions, topic_size_scaling,
     )
 
-    return dcc.Graph(id='graph-topic-scatter-plot', figure=topic_scatter_plot)
+    return dcc.Graph(
+        id='graph-topic-scatter-plot',
+        figure=topic_scatter_plot,
+        style={'height': '85vh', 'width': '100%'},
+        )
 
 
 @app.callback(
@@ -140,7 +144,11 @@ def update_term_relevance_bar_plot(lambda_value, topic_id):
         lambda_value,
     )
 
-    return dcc.Graph(id='graph-term-relevance-bar-plot', figure=term_relevance_bar_plot)
+    return dcc.Graph(
+        id='graph-term-relevance-bar-plot',
+        figure=term_relevance_bar_plot,
+        style={'height': '85vh', 'widht': '100%'},
+    )
 
 
 if __name__ == '__main__':
