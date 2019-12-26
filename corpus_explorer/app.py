@@ -96,7 +96,10 @@ app.layout = html.Div(
         html.Div(
             id='div-graphs',
             children=[
-                html.Div(id='graph-topic-scatter-plot-container'),
+                html.Div(id='graph-topic-scatter-plot-container',
+                         children=dcc.Graph(id='graph-topic-scatter-plot',
+                                            style={'height': '85vh', 'width': '100%'})
+                ),
                 html.Div(id='graph-term-relevance-bar-plot-container'),
             ],
         ),
