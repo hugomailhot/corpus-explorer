@@ -29,8 +29,13 @@ def serve_term_relevance_bar_plot(term_ranks, dictionary, topic_id, lam):
 
 
 def serve_topic_scatter_plot(
-    topic_coordinates, topic_proportions, topic_size_scaler,
+    topic_coordinates, topic_proportions, selected_topic,
 ):
+
+    marker = {'color': ['#80E1EA' for x in range(len(topic_proportions))]}
+    if selected_topic is not None:
+        marker['color'][selected_topic] = '#E98364'
+
     x_coords = topic_coordinates[:, 0]
     y_coords = topic_coordinates[:, 1]
 
@@ -41,8 +46,14 @@ def serve_topic_scatter_plot(
     data = go.Scatter(
         x=x_coords,
         y=y_coords,
-        mode='markers',
-        marker_size=topic_sizes * topic_size_scaler,
+        customdata=[{'topic_id': x} for x in range(len(x_coords))],
+        mode='markers+text',
+        marker_size=topic_sizes,
+        marker=marker,
+        text=[str(x) for x in range(len(x_coords))],
+        textposition='middle center',
+        textfont={'family': 'Arial, sans-serif', 'color': 'white', 'size': 21},
+
     )
     x_pad = 0.05
     y_pad = 0.05

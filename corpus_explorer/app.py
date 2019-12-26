@@ -68,17 +68,6 @@ app.layout = html.Div(
             id='div-top-controls',
             children=[
                 html.Div(
-                    id='slider-topic-size-scaling-container',
-                    children=drc.NamedSlider(
-                        name='Topic Size Scaling',
-                        id='slider-topic-size-scaling',
-                        min=1,
-                        max=2,
-                        step=0.1,
-                        value=1,
-                    ),
-                ),
-                html.Div(
                     id='slider-term-relevance-lambda-container',
                     children=drc.NamedSlider(
                         name='Lambda',
@@ -115,20 +104,30 @@ app.layout = html.Div(
 )
 
 
-
 @app.callback(
-    Output('graph-topic-scatter-plot-container', 'children'),
-    [Input('slider-topic-size-scaling', 'value')])
-def update_topic_scatter_plot_marker_sizes(topic_size_scaling):
+    [Output('input-topic-id', 'value'),
+     Output('graph-topic-scatter-plot-container', 'children')],
+    [Input('graph-topic-scatter-plot', 'clickData')],
+)
+def update_topic_scatter_plot_selection(clickData):
+    # Default to 0 during app initialization
+    if clickData is None:
+        topic_id = 0
+    else:
+        topic_id = clickData['points'][0]['customdata']['topic_id']
+
     topic_scatter_plot = figs.serve_topic_scatter_plot(
-        topic_coordinates, topic_proportions, topic_size_scaling,
+        topic_coordinates, topic_proportions, topic_id,
     )
 
-    return dcc.Graph(
-        id='graph-topic-scatter-plot',
-        figure=topic_scatter_plot,
-        style={'height': '85vh', 'width': '100%'},
+    return [
+        topic_id,
+        dcc.Graph(
+            id='graph-topic-scatter-plot',
+            figure=topic_scatter_plot,
+            style={'height': '85vh', 'width': '100%'},
         )
+    ]
 
 
 @app.callback(
