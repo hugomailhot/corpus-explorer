@@ -14,7 +14,6 @@ from gensim.matutils import corpus2csc
 from scipy.spatial.distance import jensenshannon
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from sklearn.preprocessing import MinMaxScaler
 
 
 # Reasonable range for object sizes in Plotly
@@ -23,41 +22,6 @@ MAX_MARKER_SIZE = 100
 
 # Regex for punctuation in English text
 PUNCT_RE = r'[!"#$%&\'()*+,./:;<=>?@\^_`{|}~]'
-
-
-def normalize_text(text: str) -> str:
-    """Take raw text and apply several normalization steps to it.
-
-    Specifically we perform:
-        - lowercasing
-        - numbers removal
-        - punctuation removal
-
-    Notes
-    -----
-    This function is currently just a minimal example. We might want to consider
-    other normalization steps, such as:
-        - stopword removal
-        - lemmatization
-        - stemming
-
-    Parameters
-    ----------
-    text:
-        Input text in its raw form.
-
-    Returns
-    -------
-    Normalized text.
-
-    """
-    text = text.lower()
-    text = re.sub(r'\d+', '', text)
-    text = re.sub(PUNCT_RE, '', text)
-    text = re.sub(r'\s\s+', ' ', text)  # Handle excess whitespace
-    text = text.strip()  # No whitespace at start and end of string
-
-    return text
 
 
 def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
@@ -235,3 +199,38 @@ def get_topic_term_ranks(
             term_ranks[lam][topic_id] = ranked_term_ids
 
     return term_ranks
+
+
+def normalize_text(text: str) -> str:
+    """Take raw text and apply several normalization steps to it.
+
+    Specifically we perform:
+        - lowercasing
+        - numbers removal
+        - punctuation removal
+
+    Notes
+    -----
+    This function is currently just a minimal example. We might want to consider
+    other normalization steps, such as:
+        - stopword removal
+        - lemmatization
+        - stemming
+
+    Parameters
+    ----------
+    text:
+        Input text in its raw form.
+
+    Returns
+    -------
+    Normalized text.
+
+    """
+    text = text.lower()
+    text = re.sub(r'\d+', '', text)
+    text = re.sub(PUNCT_RE, '', text)
+    text = re.sub(r'\s\s+', ' ', text)  # Handle excess whitespace
+    text = text.strip()  # No whitespace at start and end of string
+
+    return text

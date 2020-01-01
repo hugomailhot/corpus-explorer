@@ -8,7 +8,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import numpy as np
 import pandas as pd
-from dash.dependencies import Input, Output
+from dash.dependencies import Input
+from dash.dependencies import Output
 from gensim.matutils import corpus2csc
 from gensim.models import LdaModel
 
@@ -129,7 +130,7 @@ def update_topic_scatter_plot_selection(clickData):
             id='graph-topic-scatter-plot',
             figure=topic_scatter_plot,
             style={'height': '85vh', 'width': '100%'},
-        )
+        ),
     ]
 
 
