@@ -8,8 +8,8 @@ import pandas as pd
 
 
 url = 'http://www.cs.columbia.edu/~blei/lda-c/ap.tgz'
+print(f'Downloading dataset from {url}')
 TEMP_FILE = 'temp_file.tgz'
-
 with open(TEMP_FILE, 'wb') as f:
     f.write(requests.get(url).content)
 
@@ -34,6 +34,9 @@ df = pd.DataFrame(
     },
 )
 
-df.to_parquet('corpus_explorer/data/ap_dataset.parquet')
+output_filepath = 'corpus_explorer/data/ap_dataset.parquet'
+print(f'Saving dataset to {output_filepath}')
+df.to_parquet(output_filepath)
 
+print('Cleaning up temp file')
 os.remove(TEMP_FILE)
