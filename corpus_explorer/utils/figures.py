@@ -6,18 +6,32 @@ import plotly.graph_objs as go
 from sklearn.preprocessing import MinMaxScaler
 
 
-def serve_term_relevance_bar_plot(term_ranks, dictionary, topic_id, lam):
+def serve_term_relevance_bar_plot(term_ranks, term_frequencies, dictionary, topic_id, lam):
     N = 30
-    top_N_terms = [dictionary[term_id] for term_id in term_ranks[lam][topic_id][:N]]
+    top_term_ids = term_ranks[lam][topic_id][:N][::-1]
+    top_terms = [dictionary[term_id] for term_id in top_term_ids]
+    top_terms_total_freqs = [term_frequencies['all'][x] for x in top_term_ids]
+    top_terms_topic_freqs = [term_frequencies[topic_id][x] for x in top_term_ids]
 
-    data = go.Bar(
-        x=list(range(1, N + 1)),
-        y=top_N_terms,
-        orientation='h',
-    )
+    data = [
+        go.Bar(
+            x=top_terms_total_freqs,
+            y=top_terms,
+            orientation='h',
+            name='Overall term frequency',
+        ),
+        go.Bar(
+            x=top_terms_topic_freqs,
+            y=top_terms,
+            orientation='h',
+            name='Estimated term frequency within the selected topic',
+        ),
+    ]
 
     layout = go.Layout(
         title=f'{N} most relevant topic terms',
+        barmode='overlay',
+        legend=dict(x=0, y=-0.1),
         # plot_bgcolor="#282b38",
         # paper_bgcolor="#282b38",
         # font={"color": "#a5b1cd"},

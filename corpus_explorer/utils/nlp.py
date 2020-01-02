@@ -3,6 +3,7 @@ so that it can be used as input to a topic model learner.
 """
 
 import re
+from collections import defaultdict
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -11,9 +12,11 @@ from typing import Tuple
 import numpy as np
 from gensim import corpora
 from gensim.matutils import corpus2csc
+from nltk.tokenize import word_tokenize
 from scipy.spatial.distance import jensenshannon
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+from stop_words import get_stop_words
 
 
 # Reasonable range for object sizes in Plotly
@@ -22,6 +25,14 @@ MAX_MARKER_SIZE = 100
 
 # Regex for punctuation in English text
 PUNCT_RE = r'[!"#$%&\'()*+,./:;<=>?@\^_`{|}~]'
+
+# Check if NLTK's word tokenizer is installed
+try:
+    _ = word_tokenize('some sentence')
+except LookupError:
+    print('Downloading missing NLTK word tokenizer')
+    import nltk
+    nltk.download('punkt')
 
 
 def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
@@ -208,12 +219,12 @@ def normalize_text(text: str) -> str:
         - lowercasing
         - numbers removal
         - punctuation removal
+        - stopword removal
 
     Notes
     -----
     This function is currently just a minimal example. We might want to consider
     other normalization steps, such as:
-        - stopword removal
         - lemmatization
         - stemming
 
@@ -232,5 +243,17 @@ def normalize_text(text: str) -> str:
     text = re.sub(PUNCT_RE, '', text)
     text = re.sub(r'\s\s+', ' ', text)  # Handle excess whitespace
     text = text.strip()  # No whitespace at start and end of string
+
+    stopwords = get_stop_words('english')
+    extra_stopwords = [
+        # these aren't in the default set, but we should still filter them
+        'said',
+        'will',
+        'one',
+        'two',
+        'three',
+    ]
+    stopwords += extra_stopwords
+    text = ' '.join(x for x in word_tokenize(text) if x not in stopwords)
 
     return text
