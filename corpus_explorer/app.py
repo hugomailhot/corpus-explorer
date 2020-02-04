@@ -8,7 +8,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import numpy as np
 import pandas as pd
-from dash.dependencies import Input, Output
+from dash.dependencies import Input
+from dash.dependencies import Output
 from gensim.matutils import corpus2csc
 from gensim.models import LdaModel
 
@@ -53,10 +54,11 @@ print('Computing topic coordinates')
 topic_coordinates = nlp.get_topic_coordinates(termtopics)
 topic_proportions = nlp.get_topic_proportions(doctopics, doclength)
 
+print('Computing term frequencies')
+term_frequencies = nlp.get_term_frequencies(docterm, termtopics, topic_proportions, doclength)
+
 print('Computing term ranks per topic')
 term_ranks = nlp.get_topic_term_ranks(docterm, termtopics)
-
-# TODO: add term ranking display to the app
 
 print('Building and populating app layout')
 app = dash.Dash(__name__)
@@ -129,7 +131,7 @@ def update_topic_scatter_plot_selection(clickData):
             id='graph-topic-scatter-plot',
             figure=topic_scatter_plot,
             style={'height': '85vh', 'width': '100%'},
-        )
+        ),
     ]
 
 
@@ -140,6 +142,7 @@ def update_topic_scatter_plot_selection(clickData):
 def update_term_relevance_bar_plot(lambda_value, topic_id):
     term_relevance_bar_plot = figs.serve_term_relevance_bar_plot(
         term_ranks,
+        term_frequencies,
         dictionary,
         topic_id,
         lambda_value,
@@ -148,9 +151,9 @@ def update_term_relevance_bar_plot(lambda_value, topic_id):
     return dcc.Graph(
         id='graph-term-relevance-bar-plot',
         figure=term_relevance_bar_plot,
-        style={'height': '85vh', 'widht': '100%'},
+        style={'height': '85vh', 'width': '100%'},
     )
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)

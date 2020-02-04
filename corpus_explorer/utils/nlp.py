@@ -3,6 +3,7 @@ so that it can be used as input to a topic model learner.
 """
 
 import re
+from collections import defaultdict
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -11,10 +12,11 @@ from typing import Tuple
 import numpy as np
 from gensim import corpora
 from gensim.matutils import corpus2csc
+from nltk.tokenize import word_tokenize
 from scipy.spatial.distance import jensenshannon
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from sklearn.preprocessing import MinMaxScaler
+from stop_words import get_stop_words
 
 
 # Reasonable range for object sizes in Plotly
@@ -24,40 +26,13 @@ MAX_MARKER_SIZE = 100
 # Regex for punctuation in English text
 PUNCT_RE = r'[!"#$%&\'()*+,./:;<=>?@\^_`{|}~]'
 
-
-def normalize_text(text: str) -> str:
-    """Take raw text and apply several normalization steps to it.
-
-    Specifically we perform:
-        - lowercasing
-        - numbers removal
-        - punctuation removal
-
-    Notes
-    -----
-    This function is currently just a minimal example. We might want to consider
-    other normalization steps, such as:
-        - stopword removal
-        - lemmatization
-        - stemming
-
-    Parameters
-    ----------
-    text:
-        Input text in its raw form.
-
-    Returns
-    -------
-    Normalized text.
-
-    """
-    text = text.lower()
-    text = re.sub(r'\d+', '', text)
-    text = re.sub(PUNCT_RE, '', text)
-    text = re.sub(r'\s\s+', ' ', text)  # Handle excess whitespace
-    text = text.strip()  # No whitespace at start and end of string
-
-    return text
+# Check if NLTK's word tokenizer is installed
+try:
+    _ = word_tokenize('some sentence')
+except LookupError:
+    print('Downloading missing NLTK word tokenizer')
+    import nltk
+    nltk.download('punkt')
 
 
 def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
@@ -91,6 +66,44 @@ def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
     docterm = [dictionary.doc2bow(doc) for doc in tokenized_corpus]
 
     return docterm, dictionary
+
+
+def get_term_frequencies(docterm, termtopics, topic_proportions, doclength):
+    """Compute overall term frequencies and estimated per-topic term frequencies.
+
+    Parameters
+    ----------
+    docterm:
+        asdf
+    termtopics:
+        asdf
+
+    Returns
+    -------
+    Dict containing term frequencies for 'all' topics and for each topic id.
+
+    """
+    term_frequencies = {'all': defaultdict(int)}
+
+    # Compute overall term frequencies
+    for doc in docterm:
+        for term_id, count in doc:
+            term_frequencies['all'][term_id] += count
+
+    # Estimate per-topic term frequencies
+    n_terms = sum(doclength)
+    for topic_id in range(termtopics.shape[0]):
+        term_frequencies[topic_id] = {}
+        for term_id in range(termtopics.shape[1]):
+            # < 1% of the time, the estimate is larger than the total count.
+            # We take the min to ensure per-topic frequency doesn't exceed
+            # total frequency.
+            term_frequencies[topic_id][term_id] = min(
+                n_terms * topic_proportions[topic_id] * termtopics[topic_id][term_id],
+                term_frequencies['all'][term_id],
+            )
+
+    return term_frequencies
 
 
 def get_topic_coordinates(topicterms, method='pca'):
@@ -235,3 +248,50 @@ def get_topic_term_ranks(
             term_ranks[lam][topic_id] = ranked_term_ids
 
     return term_ranks
+
+
+def normalize_text(text: str) -> str:
+    """Take raw text and apply several normalization steps to it.
+
+    Specifically we perform:
+        - lowercasing
+        - numbers removal
+        - punctuation removal
+        - stopword removal
+
+    Notes
+    -----
+    This function is currently just a minimal example. We might want to consider
+    other normalization steps, such as:
+        - lemmatization
+        - stemming
+
+    Parameters
+    ----------
+    text:
+        Input text in its raw form.
+
+    Returns
+    -------
+    Normalized text.
+
+    """
+    text = text.lower()
+    text = re.sub(r'\d+', '', text)
+    text = re.sub(PUNCT_RE, '', text)
+    text = re.sub(r'\s\s+', ' ', text)  # Handle excess whitespace
+    text = text.strip()  # No whitespace at start and end of string
+
+    stopwords = get_stop_words('english')
+    extra_stopwords = [
+        # these aren't in the default set, but we should still filter them
+        'said',
+        'will',
+        'one',
+        'two',
+        'three',
+    ]
+    stopwords += extra_stopwords
+    text = ' '.join(x for x in word_tokenize(text) if x not in stopwords)
+
+    return text
