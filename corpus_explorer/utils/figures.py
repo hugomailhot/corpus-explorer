@@ -88,3 +88,24 @@ def serve_topic_scatter_plot(
     figure = go.Figure(data=data, layout=layout)
 
     return figure
+
+
+def serve_topic_volume_over_time_plot(
+    volume_over_time_df,
+):
+
+    data = []
+    for topic_id in volume_over_time_df.columns:
+        data.append(
+            go.Scatter(
+                x=volume_over_time_df.index,
+                y=volume_over_time_df[topic_id],
+                mode='lines',
+                stackgroup='A',
+            )
+        )
+
+    figure = go.Figure(data=data)
+
+    return figure
+
