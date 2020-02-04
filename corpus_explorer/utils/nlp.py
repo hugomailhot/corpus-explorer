@@ -68,6 +68,44 @@ def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
     return docterm, dictionary
 
 
+def get_term_frequencies(docterm, termtopics, topic_proportions, doclength):
+    """Compute overall term frequencies and estimated per-topic term frequencies.
+
+    Parameters
+    ----------
+    docterm:
+        asdf
+    termtopics:
+        asdf
+
+    Returns
+    -------
+    Dict containing term frequencies for 'all' topics and for each topic id.
+
+    """
+    term_frequencies = {'all': defaultdict(int)}
+
+    # Compute overall term frequencies
+    for doc in docterm:
+        for term_id, count in doc:
+            term_frequencies['all'][term_id] += count
+
+    # Estimate per-topic term frequencies
+    n_terms = sum(doclength)
+    for topic_id in range(termtopics.shape[0]):
+        term_frequencies[topic_id] = {}
+        for term_id in range(termtopics.shape[1]):
+            # < 1% of the time, the estimate is larger than the total count.
+            # We take the min to ensure per-topic frequency doesn't exceed
+            # total frequency.
+            term_frequencies[topic_id][term_id] = min(
+                n_terms * topic_proportions[topic_id] * termtopics[topic_id][term_id],
+                term_frequencies['all'][term_id],
+            )
+
+    return term_frequencies
+
+
 def get_topic_coordinates(topicterms, method='pca'):
     """Compute a 2-dimensional embeddings of topics that reflects their
     distance from one another.
