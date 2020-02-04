@@ -51,7 +51,7 @@ doctopics = corpus2csc([lda.get_document_topics(doc) for doc in docterm])
 termtopics = lda.get_topics()
 
 print('Computing topic coordinates')
-topic_coordinates = nlp.get_topic_coordinates(termtopics)
+topic_coordinates = nlp.get_topic_coordinates(termtopics, method='mds')
 topic_proportions = nlp.get_topic_proportions(doctopics, doclength)
 
 print('Computing term frequencies')

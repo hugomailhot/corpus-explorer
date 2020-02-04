@@ -15,6 +15,7 @@ from gensim.matutils import corpus2csc
 from nltk.tokenize import word_tokenize
 from scipy.spatial.distance import jensenshannon
 from sklearn.decomposition import PCA
+from sklearn.manifold import MDS
 from sklearn.manifold import TSNE
 from stop_words import get_stop_words
 
@@ -120,7 +121,7 @@ def get_topic_coordinates(topicterms, method='pca'):
         for one topic.
     method: str
         Method used to obtain the 2-dimensional embeddings. Acceptable value
-        are "pca" and "tsne".
+        are "pca", "mds" and "tsne".
 
     Returns
     -------
@@ -128,7 +129,7 @@ def get_topic_coordinates(topicterms, method='pca'):
     The ith row contains the x and y coordinates of the ith topic.
 
     """
-    if method not in {'pca', 'tsne'}:
+    if method not in {'mds', 'pca', 'tsne'}:
         raise ValueError('method argument must be either "pca" or "tsne"')
 
     n_topics = topicterms.shape[0]
@@ -146,6 +147,8 @@ def get_topic_coordinates(topicterms, method='pca'):
     # Reduce dimensionality to obtain 2D topic embeddings.
     if method == 'pca':
         dimensionality_reducer = PCA(n_components=2)
+    elif method == 'mds':
+        dimensionality_reducer = MDS(n_components=2)
     else:
         dimensionality_reducer = TSNE(n_components=2)
 
