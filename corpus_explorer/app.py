@@ -151,9 +151,9 @@ def update_term_relevance_bar_plot(lambda_value, topic_id):
     return dcc.Graph(
         id='graph-term-relevance-bar-plot',
         figure=term_relevance_bar_plot,
-        style={'height': '85vh', 'widht': '100%'},
+        style={'height': '85vh', 'width': '100%'},
     )
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
