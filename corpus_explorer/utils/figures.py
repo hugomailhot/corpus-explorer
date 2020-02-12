@@ -91,8 +91,12 @@ def serve_topic_scatter_plot(
 
 
 def serve_topic_volume_over_time_plot(
-    volume_over_time_df,
+    volume_over_time_df, selected_topic,
 ):
+
+    # marker = {'fillcolor': ["rgba(25, 25, 25, 0.5)" for x in range(volume_over_time_df.shape[1])]}
+    # if selected_topic is not None:
+    #     marker['opacity'][selected_topic] = 1
 
     data = []
     for topic_id in volume_over_time_df.columns:
@@ -100,8 +104,19 @@ def serve_topic_volume_over_time_plot(
             go.Scatter(
                 x=volume_over_time_df.index,
                 y=volume_over_time_df[topic_id],
+                customdata=[
+                    {'topic_id': topic_id}
+                    for x in range(volume_over_time_df.shape[0])
+                ],
+                hoveron='fills+points',
+                # marker=marker,
                 mode='lines',
                 stackgroup='A',
+                fillcolor=(
+                    'rgba(50, 50, 50, 1)'
+                    if topic_id == selected_topic
+                    else 'rgba(50, 50, 50, 0.2)'
+                )
             )
         )
 
