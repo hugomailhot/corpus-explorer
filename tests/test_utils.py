@@ -2,14 +2,13 @@ import numpy as np
 import pytest
 import scipy
 
-from corpus_explorer.utils import get_topic_coordinates
-from corpus_explorer.utils import get_topic_proportions
-from corpus_explorer.utils import normalize_text
-
+from corpus_explorer.utils.nlp import normalize_text
+from corpus_explorer.utils.nlp import get_topic_proportions
+from corpus_explorer.utils.nlp import get_topic_coordinates
 
 def test_normalize_text_handles_excess_whitespace():
     raw_text = 'why the long                            pause'
-    expected = 'why the long pause'
+    expected = 'long pause'
     assert normalize_text(raw_text) == expected
 
     raw_text = '''
@@ -17,19 +16,19 @@ def test_normalize_text_handles_excess_whitespace():
     different
 
     '''
-    expected = 'now for something different'
+    expected = 'now something different'
     assert normalize_text(raw_text) == expected
 
 
 def test_normalize_text_removes_numbers():
     raw_text = 'ya hate 2 see it'
-    expected = 'ya hate see it'
+    expected = 'ya hate see'
     assert normalize_text(raw_text) == expected
 
 
 def test_normalize_text_removes_punctuation():
     raw_text = 'that guy: he really takes the "the" out of "psychotherapist", amirite?'
-    expected = 'that guy he really takes the the out of psychotherapist amirite'
+    expected = 'guy really takes psychotherapist amirite'
     assert normalize_text(raw_text) == expected
 
 
@@ -50,7 +49,6 @@ def test_get_topic_proportions_return_correction_proportions():
     # Using allclose instead of array_equal here, since floating point
     # imprecision causes inequality with a difference of 5e-17
     assert np.allclose(actual, expected)
-
 
 def test_get_topic_coordinates_returns_expected_shape():
     topicterms = np.array([
