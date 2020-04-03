@@ -10,6 +10,7 @@ from typing import List
 from typing import Tuple
 
 import numpy as np
+import pandas as pd
 from gensim import corpora
 from gensim.matutils import corpus2csc
 from nltk.tokenize import word_tokenize
@@ -181,6 +182,56 @@ def get_topic_proportions(doctopics, doclengths):
     )
 
     return np.sum(len_weighted_doctopics, axis=1) / np.sum(len_weighted_doctopics)
+
+
+def get_topic_volume_over_time(df, doctopics, n_periods=20):
+    """Compute the volume of documents attributable to each topic over n_periods
+    consecutive time periods.
+
+    Notes
+    -----
+    This makes use of a `timestamp` column, assumed to be present in the input
+    dataframe.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Original dataset.
+    doctopics: scipy.sparse.csc_matrix
+        Topic distribution per document.
+    n_periods: int
+        Number of periods in which to slice the dataset.
+
+    Returns
+    -------
+    pd.DataFrame
+        Indexed by timestamp, n_periods rows and n_topics columns. Each column
+        holds a topic volume timeseries across all periods.
+
+    """
+    periods = pd.date_range(
+        start=df.timestamp.min(),
+        end=df.timestamp.max(),
+        freq='M',
+    )
+
+    volume_over_time_df = pd.DataFrame(
+        data=None,
+        index=periods[:-1],
+        columns=list(range(doctopics.shape[0])),
+    )
+    for i in range(len(periods) - 1):
+        period_mask = (df.timestamp > periods[i]) & (df.timestamp <= periods[i+1])
+
+        # works because idx is 0-indexed sequence of ints
+        # TODO: find something that doesn't assume the df index
+        period_idx = df[period_mask].index
+        period_doctopics = doctopics[:, period_idx]
+        topic_volumes = period_doctopics.sum(axis=1).squeeze()
+
+        volume_over_time_df.loc[periods[i]] = topic_volumes
+
+    return volume_over_time_df
 
 
 def get_topic_term_ranks(

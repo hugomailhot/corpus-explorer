@@ -50,6 +50,9 @@ print('Getting document topics')
 doctopics = corpus2csc([lda.get_document_topics(doc) for doc in docterm])
 termtopics = lda.get_topics()
 
+print('Computing topic volume time series')
+topic_volume_over_time = nlp.get_topic_volume_over_time(data, doctopics, 20)
+
 print('Computing topic coordinates')
 topic_coordinates = nlp.get_topic_coordinates(termtopics, method='mds')
 topic_proportions = nlp.get_topic_proportions(doctopics, doclength)
@@ -98,10 +101,30 @@ app.layout = html.Div(
         html.Div(
             id='div-graphs',
             children=[
-                html.Div(id='graph-topic-scatter-plot-container',
-                         children=dcc.Graph(id='graph-topic-scatter-plot',
-                                            style={'height': '85vh', 'width': '100%'})
+                html.Div(
+                    id='topic-comparison',
+                    children=[
+                        dcc.Tabs(
+                            id='topic-comparison-tabs',
+                            value='inter-topic-distance',
+                            children=[
+                                dcc.Tab(label='Inter-topic distance', value='inter-topic-distance'),
+                                dcc.Tab(label='Topic volume time series', value='topic-volume-time-series'),
+                            ],
+                        ),
+                        html.Div(
+                            id='topic-comparison-plot-container',
+                            children=dcc.Graph(
+                                id='topic-comparison-plot',
+                                style={'height': '85vh', 'width': '100%'},
+                            )
+                        ),
+                    ]
                 ),
+                # html.Div(id='graph-topic-scatter-plot-container',
+                #          children=dcc.Graph(id='graph-topic-scatter-plot',
+                #                             style={'height': '85vh', 'width': '100%'})
+                # ),
                 html.Div(id='graph-term-relevance-bar-plot-container'),
             ],
         ),
@@ -111,25 +134,35 @@ app.layout = html.Div(
 
 @app.callback(
     [Output('input-topic-id', 'value'),
-     Output('graph-topic-scatter-plot-container', 'children')],
-    [Input('graph-topic-scatter-plot', 'clickData')],
+     Output('topic-comparison-plot-container', 'children')],
+    [Input('topic-comparison-plot', 'clickData'),
+     Input('topic-comparison-tabs', 'value')],
 )
-def update_topic_scatter_plot_selection(clickData):
-    # Default to 0 during app initialization
+def update_topic_comparison_plot_select(clickData, tab):
     if clickData is None:
         topic_id = 0
     else:
-        topic_id = clickData['points'][0]['customdata']['topic_id']
+        try:
+            topic_id = clickData['points'][0]['customdata']['topic_id']
+        except KeyError:
+            topic_id = 0
 
-    topic_scatter_plot = figs.serve_topic_scatter_plot(
-        topic_coordinates, topic_proportions, topic_id,
-    )
+
+    # Depending on the selected tab, serve the appropriate figure
+    if tab == 'inter-topic-distance':
+        topic_comparison_plot = figs.serve_topic_scatter_plot(
+            topic_coordinates, topic_proportions, topic_id,
+        )
+    elif tab == 'topic-volume-time-series':
+        topic_comparison_plot = figs.serve_topic_volume_over_time_plot(
+            topic_volume_over_time, topic_id,
+        )
 
     return [
         topic_id,
         dcc.Graph(
-            id='graph-topic-scatter-plot',
-            figure=topic_scatter_plot,
+            id='topic-comparison-plot',
+            figure=topic_comparison_plot,
             style={'height': '85vh', 'width': '100%'},
         ),
     ]
