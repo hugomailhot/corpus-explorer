@@ -4,6 +4,8 @@ so that it can be used as input to a topic model learner.
 
 import re
 from collections import defaultdict
+from multiprocessing import Pool
+from multiprocessing import cpu_count
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -14,6 +16,7 @@ import pandas as pd
 from gensim import corpora
 from gensim.matutils import corpus2csc
 from nltk.tokenize import word_tokenize
+from nltk.tokenize import TweetTokenizer
 from scipy.spatial.distance import jensenshannon
 from sklearn.decomposition import PCA
 from sklearn.manifold import MDS
@@ -28,6 +31,30 @@ MAX_MARKER_SIZE = 100
 # Regex for punctuation in English text
 PUNCT_RE = r'[!"#$%&\'()*+,./:;<=>?@\^_`{|}~]'
 
+tweet_tokenizer = TweetTokenizer(preserve_case=False, reduce_len=True)
+
+############################
+### STOPWORDS DEFINITION ###
+############################
+stopwords = get_stop_words('english')
+stopwords += get_stop_words('spanish')
+extra_stopwords = [
+    # these aren't in the default set, but we should still filter them
+    'said',
+    'will',
+    'one',
+    'two',
+    'three',
+]
+punctuation = [
+    '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '.', '/',
+    ':', ';', '<', '=', '>', '?', '@', '^', '_', '`', '{', '|', '}', '~',
+    'amp',
+]
+stopwords += extra_stopwords + punctuation
+stopwords = set(stopwords)
+
+
 # Check if NLTK's word tokenizer is installed
 try:
     _ = word_tokenize('some sentence')
@@ -36,6 +63,11 @@ except LookupError:
     import nltk
     nltk.download('punkt')
 
+def tokenize_corpus(doc):
+    return doc.lower().split()
+
+def doc2bow(doc, dictionary):
+    return dictionary.doc2bow(doc)
 
 def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
     """Turn a collection of texts into a document-term matrix.
@@ -63,9 +95,20 @@ def get_docterm_matrix(corpus: Iterable[str]) -> List[Tuple[int]]:
     A sparse document-term matrix in integer list repesentation.
 
     """
-    tokenized_corpus = [doc.split() for doc in corpus]
-    dictionary = corpora.Dictionary(tokenized_corpus)
-    docterm = [dictionary.doc2bow(doc) for doc in tokenized_corpus]
+
+    with Pool(cpu_count() - 1) as p:
+
+        tokenized_corpus = p.map(
+            tokenize_corpus,
+            corpus,
+        )
+        # tokenized_corpus = [doc.lower().split() for doc in corpus]
+        dictionary = corpora.Dictionary(tokenized_corpus)
+
+        docterm = p.starmap(
+            doc2bow,
+            ((doc, dictionary) for doc in tokenized_corpus),
+        )
 
     return docterm, dictionary
 
@@ -331,9 +374,9 @@ def normalize_text(text: str) -> str:
 
     """
     text = text.lower()
-    text = re.sub(r'\d+', '', text)
-    text = re.sub(PUNCT_RE, '', text)
-    text = re.sub(r'\s\s+', ' ', text)  # Handle excess whitespace
+    # text = re.sub(r'\d+', '', text)
+    # text = re.sub(PUNCT_RE, '', text)
+    # text = re.sub(r'\s\s+', ' ', text)  # Handle excess whitespace
     text = text.strip()  # No whitespace at start and end of string
 
     stopwords = get_stop_words('english')
@@ -349,3 +392,83 @@ def normalize_text(text: str) -> str:
     text = ' '.join(x for x in word_tokenize(text) if x not in stopwords)
 
     return text
+
+
+def normalize_tweet(text):
+    """Take raw Tweet and apply several normalization steps to it.
+
+    Specifically we perform:
+        - lowercasing
+        - numbers removal
+        - punctuation removal
+        - stopword removal
+
+    Notes
+    -----
+    This function is currently just a minimal example. We might want to consider
+    other normalization steps, such as:
+        - lemmatization
+        - stemming
+
+    Parameters
+    ----------
+    text:
+        Input tweet in its raw form.
+
+    Returns
+    -------
+    Normalized tweet.
+
+    """
+    text = ' '.join(x for x in tweet_tokenizer.tokenize(text) if x not in stopwords)
+
+    return text
+
+
+def papply(func, df, *args, max_cores=None):
+    """Apply function over the DataFrame using parallel processes.
+
+    max_cores is there in case leveraging all cores would results
+    in memory shortage.
+
+    Arguments
+    ---------
+    func:
+        a function with arguments(df, *args), must return a df
+    df:
+    args:
+        optional additional arguments for the function
+    max_cores: optional int
+        If set, will restrict how many cores the work is split over
+
+    Returns
+    -------
+        The df after having applied func to all its rows.
+
+    """
+    cores = cpu_count() - 1
+
+    if max_cores:
+        cores = min(cores, max_cores)
+
+    chunks = np.array_split(df, cores)
+
+    with Pool(cores) as p:
+        if args:
+            arg_tuples = ([c] + list(args) for c in chunks)
+            result = pd.concat(p.starmap(func, arg_tuples))
+        else:
+            result = pd.concat(p.map(func, chunks))
+
+    return result
+
+
+def parallel_normalize_tweets(tweets):
+
+    n_cores = cpu_count() - 1
+
+    with Pool(n_cores) as p:
+        res = p.map(normalize_tweet, tweets)
+
+    return res
+

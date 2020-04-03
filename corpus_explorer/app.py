@@ -37,7 +37,7 @@ print('Reading dataset')
 data = pd.read_parquet(args.input_filepath)
 
 print('Normalizing text')
-data.text = data.text.map(nlp.normalize_text)
+data.text = nlp.parallel_normalize_tweets(data.text)
 
 print('Building docterm matrix')
 docterm, dictionary = nlp.get_docterm_matrix(data.text)
