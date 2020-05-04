@@ -108,8 +108,10 @@ app.layout = html.Div(
                             id='topic-comparison-tabs',
                             value='inter-topic-distance',
                             children=[
-                                dcc.Tab(label='Inter-topic distance', value='inter-topic-distance'),
-                                dcc.Tab(label='Topic volume time series', value='topic-volume-time-series'),
+                                dcc.Tab(label='Inter-topic distance',
+                                        value='inter-topic-distance'),
+                                dcc.Tab(label='Topic volume time series',
+                                        value='topic-volume-time-series'),
                             ],
                         ),
                         html.Div(
@@ -117,9 +119,9 @@ app.layout = html.Div(
                             children=dcc.Graph(
                                 id='topic-comparison-plot',
                                 style={'height': '85vh', 'width': '100%'},
-                            )
+                            ),
                         ),
-                    ]
+                    ],
                 ),
                 # html.Div(id='graph-topic-scatter-plot-container',
                 #          children=dcc.Graph(id='graph-topic-scatter-plot',
@@ -146,7 +148,6 @@ def update_topic_comparison_plot_select(clickData, tab):
             topic_id = clickData['points'][0]['customdata']['topic_id']
         except KeyError:
             topic_id = 0
-
 
     # Depending on the selected tab, serve the appropriate figure
     if tab == 'inter-topic-distance':

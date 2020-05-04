@@ -2,9 +2,10 @@ import numpy as np
 import pytest
 import scipy
 
-from corpus_explorer.utils.nlp import normalize_text
-from corpus_explorer.utils.nlp import get_topic_proportions
 from corpus_explorer.utils.nlp import get_topic_coordinates
+from corpus_explorer.utils.nlp import get_topic_proportions
+from corpus_explorer.utils.nlp import normalize_text
+
 
 def test_normalize_text_handles_excess_whitespace():
     raw_text = 'why the long                            pause'
@@ -49,6 +50,7 @@ def test_get_topic_proportions_return_correction_proportions():
     # Using allclose instead of array_equal here, since floating point
     # imprecision causes inequality with a difference of 5e-17
     assert np.allclose(actual, expected)
+
 
 def test_get_topic_coordinates_returns_expected_shape():
     topicterms = np.array([

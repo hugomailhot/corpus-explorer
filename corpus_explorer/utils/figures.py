@@ -94,7 +94,9 @@ def serve_topic_volume_over_time_plot(
     volume_over_time_df, selected_topic,
 ):
 
-    # marker = {'fillcolor': ["rgba(25, 25, 25, 0.5)" for x in range(volume_over_time_df.shape[1])]}
+    # marker = {
+    #    'fillcolor': ["rgba(25, 25, 25, 0.5)" for x in range(volume_over_time_df.shape[1])]
+    # }
     # if selected_topic is not None:
     #     marker['opacity'][selected_topic] = 1
 
@@ -116,11 +118,10 @@ def serve_topic_volume_over_time_plot(
                     'rgba(50, 50, 50, 1)'
                     if topic_id == selected_topic
                     else 'rgba(50, 50, 50, 0.2)'
-                )
-            )
+                ),
+            ),
         )
 
     figure = go.Figure(data=data)
 
     return figure
-

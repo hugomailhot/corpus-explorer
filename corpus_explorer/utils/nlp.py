@@ -28,6 +28,17 @@ MAX_MARKER_SIZE = 100
 # Regex for punctuation in English text
 PUNCT_RE = r'[!"#$%&\'()*+,./:;<=>?@\^_`{|}~]'
 
+stopwords = get_stop_words('english')
+extra_stopwords = [
+    # these aren't in the default set, but we should still filter them
+    'said',
+    'will',
+    'one',
+    'two',
+    'three',
+]
+stopwords += extra_stopwords
+
 # Check if NLTK's word tokenizer is installed
 try:
     _ = word_tokenize('some sentence')
@@ -336,16 +347,6 @@ def normalize_text(text: str) -> str:
     text = re.sub(r'\s\s+', ' ', text)  # Handle excess whitespace
     text = text.strip()  # No whitespace at start and end of string
 
-    stopwords = get_stop_words('english')
-    extra_stopwords = [
-        # these aren't in the default set, but we should still filter them
-        'said',
-        'will',
-        'one',
-        'two',
-        'three',
-    ]
-    stopwords += extra_stopwords
     text = ' '.join(x for x in word_tokenize(text) if x not in stopwords)
 
     return text
