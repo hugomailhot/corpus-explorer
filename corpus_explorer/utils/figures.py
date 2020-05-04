@@ -123,4 +123,3 @@ def serve_topic_volume_over_time_plot(
     figure = go.Figure(data=data)
 
     return figure
-

@@ -1,10 +1,10 @@
 import os
 import re
-import requests
 import tarfile
 from datetime import datetime
 
 import pandas as pd
+import requests
 
 
 url = 'http://www.cs.columbia.edu/~blei/lda-c/ap.tgz'
