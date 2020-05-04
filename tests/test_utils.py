@@ -51,6 +51,7 @@ def test_get_topic_proportions_return_correction_proportions():
     # imprecision causes inequality with a difference of 5e-17
     assert np.allclose(actual, expected)
 
+
 def test_get_topic_coordinates_returns_expected_shape():
     topicterms = np.array([
         [0.1, 0.2, 0.0, 0.0, 0.7],
